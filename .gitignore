@@ -1,0 +1,9 @@
+.vs
+.idea
+[Oo]bj
+[Bb]in
+node_modules
+src/UserAuthService.Provider/wwwroot/css/output.css
+src/UserAuthService.Provider/package-lock.json
+src/SsoCore.Provider/appsettings.Development.json
+SsoCore.sln.DotSettings.user

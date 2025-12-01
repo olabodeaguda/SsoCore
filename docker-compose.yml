@@ -1,0 +1,46 @@
+services:
+  onnex-user-auth:
+    image: docker.onnexsoft.com/user-auth:latest
+    restart: "unless-stopped"
+    hostname: onnex-user-auth-provider
+    container_name: onnex-user-auth-provider
+    ports:
+      - 4020:8080
+      - 4021:3021
+    environment:
+      ASPNETCORE_URLS: ${ASPNETCORE_URLS}
+      ASPNETCORE_HTTPS_PORT: ${ASPNETCORE_HTTPS_PORT}
+      ASPNETCORE_HTTP_PORT: ${ASPNETCORE_HTTP_PORT}
+      ASPNETCORE_Kestrel__Certificates__Default__Password: ${TOKEN_SIGN_KEY_SECRET}
+      ASPNETCORE_Kestrel__Certificates__Default__Path: ${Certificate__Path}
+      TOKEN_SIGN_KEY_SECRET: ${TOKEN_SIGN_KEY_SECRET}
+      Authentication__Google__ClientId: ${Authentication__Google__ClientId}
+      Authentication__Google__ClientSecret: ${Authentication__Google__ClientSecret}
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      BaseUrl: ${BaseUrl}
+      AllowedHosts: ${AllowedHosts}
+      ConnectionStrings__DefaultConnection: ${ConnectionStrings__DefaultConnection}
+      ApplicationInsights__ConnectionString: ${ApplicationInsights__ConnectionString}
+      ApplicationInsights__EnableAuthenticationTrackingJavaScript: ${ApplicationInsights__EnableAuthenticationTrackingJavaScript}
+      ApplicationInsights__RequestCollectionOptions__TrackExceptions: ${ApplicationInsights__RequestCollectionOptions__TrackExceptions}
+      Certificate__Path: ${Certificate__Path}
+      Certificate__Secret: ${Certificate__Secret}
+      RabbitMQSettings__HostName: ${RabbitMQSettings__HostName}
+      RabbitMQSettings__UserName: ${RabbitMQSettings__UserName}
+      RabbitMQSettings__Password: ${RabbitMQSettings__Password}
+      RabbitMQSettings__VHost: ${RabbitMQSettings__VHost}
+      RabbitMQSettings__EmailQueue: ${RabbitMQSettings__EmailQueue}
+      Clients__0__ClientSecret: ${Clients__0__ClientSecret}
+      Clients__0__ClientId: ${Clients__0__ClientId}
+      Clients__0__DisplayName: ${Clients__0__DisplayName}
+      Clients__0__PostLogoutRedirectUri: ${Clients__0__PostLogoutRedirectUri}
+      Clients__0__RedirectUri: ${Clients__0__RedirectUri}
+      Clients__0__Scopes: ${Clients__0__Scopes}
+      SSOSettings__Issuer: ${SSOSettings__Issuer}
+      SSOSettings__Audience: ${SSOSettings__Audience}
+      SSOSettings__ClientId: ${SSOSettings__ClientId}
+      SSOSettings__ClientSecret: ${SSOSettings__ClientSecret}
+      SSOSettings__Scope: ${SSOSettings__Scope}
+
+
+

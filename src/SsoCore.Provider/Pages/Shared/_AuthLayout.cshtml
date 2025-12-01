@@ -1,0 +1,31 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+    <link rel="icon" type="image/png" href="@Url.Content("~/icon.png")" />
+    <link rel="stylesheet" href="~/css/output.css" asp-append-version="true" />
+</head>
+
+<body class="bg-gray-100">
+<div class="w-full min-h-screen flex flex-col relative">
+    <div class="fixed inset-0 z-[-1] bg-[url('/assets/background_image.svg')] bg-cover bg-center bg-no-repeat"></div>
+    <div class="fixed inset-0 z-[-1] bg-[#1a2841] bg-opacity-90"></div>
+
+    <div class="flex flex-col min-h-screen">
+        <nav class="w-full bg-white px-6 sm:px-12 py-4 flex justify-between items-center">
+            <a asp-page="/Accounts/Login" class="flex items-center">
+                    <span class="ml-2 text-lg sm:text-xl font-bold text-[#1E4273]">
+                        <img src="~/assets/logo.png" alt="Logo" class="h-7" />
+                    </span>
+            </a>
+        </nav>
+
+        <div class="flex-grow flex items-start justify-center p-4 py-8 overflow-y-auto">
+            @RenderBody()
+        </div>
+    </div>
+</div>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

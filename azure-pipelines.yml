@@ -1,0 +1,156 @@
+trigger:
+  - master
+
+pool:
+  vmImage: "ubuntu-latest"
+
+variables:
+  - group: user-auth-service-test
+  - name: dockerRegistry
+    value: "docker.onnexsoft.com"
+  - name: dockerRegistryServiceConnection
+    value: "onnexsoft_registry"
+  - name: imageName
+    value: "user-auth"
+  - name: dockerComposeFile
+    value: "docker-compose.yml"
+  - name: tag
+    value: "latest"
+  - name: sshEndpoint
+    value: "onnex_test_server"
+  - name: buildDirectory
+    value: $(Build.SourcesDirectory)
+  - name: dockerDeploymentDirectory
+    value: "/var/www/deployments"
+
+stages:
+  - stage: BuildAndTest
+    displayName: "Build Project"
+    jobs: 
+      - job: Build
+        displayName: "Build"
+        steps:
+          - task: UseDotNet@2
+            inputs:
+              packageType: 'sdk'
+              version: '9.x'
+          - task: DotNetCoreCLI@2
+            displayName: Run Restore
+            inputs:
+              command: "restore"
+              projects: "**/*.csproj"
+          - task: DotNetCoreCLI@2
+            displayName: Run Build
+            inputs:
+              command: "build"
+              projects: "**/*.csproj"
+          - task: DotNetCoreCLI@2
+            displayName: "Run Tests"
+            inputs:
+              command: "test"
+              projects: "**/*Tests.csproj"
+       
+  - stage: Build_and_Push
+    displayName: "Build and Push Docker Image"
+    jobs:
+      - job: Build_and_Push
+        steps:
+          - task: Docker@2
+            displayName: "Build"
+            inputs:
+              command: "build"
+              containerRegistry: $(dockerRegistryServiceConnection)
+              repository: $(imageName)
+              dockerfile: "**/Dockerfile"
+              buildContext: "."
+              tags: |
+                $(tag)
+              arguments: |
+                --build-arg TOKEN_SIGN_KEY_SECRET=$(TOKEN_SIGN_KEY_SECRET)
+                --build-arg Certificate__Path=$(Certificate__Path)
+
+          - task: Docker@2
+            displayName: "Push Docker Image"
+            inputs:
+              command: "push"
+              containerRegistry: $(dockerRegistryServiceConnection)
+              repository: $(imageName)
+              tags: |
+                $(tag)
+
+  - stage: Deploy
+    displayName: "Copy Files and Deploy via SSH"
+    dependsOn: Build_and_Push
+    jobs:
+      - job: Deploy
+        steps:
+          - task: SSH@0
+            displayName: "Create Directory on Server"
+            inputs:
+              sshEndpoint: "$(sshEndpoint)"
+              runOptions: "inline"
+              inline: "mkdir -p $(dockerDeploymentDirectory)/$(imageName)"
+              readyTimeout: "20000"
+          - task: CopyFilesOverSSH@0
+            displayName: "Copy Files to Server"
+            inputs:
+              sshEndpoint: $(sshEndpoint)
+              sourceFolder: $(Build.SourcesDirectory)
+              contents: "docker-compose.yml"
+              targetFolder: $(dockerDeploymentDirectory)/$(imageName)
+              cleanTargetFolder: false
+
+          - task: SSH@0
+            inputs:
+              sshEndpoint: "$(sshEndpoint)"
+              runOptions: "inline"
+              inline: |
+                # Change to the deployment directory
+                cd $(dockerDeploymentDirectory)/$(imageName)
+
+                export ASPNETCORE_URLS="$(ASPNETCORE_URLS)"
+                export ASPNETCORE_HTTPS_PORT="$(ASPNETCORE_HTTPS_PORT)"
+                export ASPNETCORE_HTTP_PORT="$(ASPNETCORE_HTTP_PORT)"
+                export TOKEN_SIGN_KEY_SECRET="$(TOKEN_SIGN_KEY_SECRET)"
+                export ASPNETCORE_Kestrel__Certificates__Default__Password="$(TOKEN_SIGN_KEY_SECRET)"
+                export ASPNETCORE_Kestrel__Certificates__Default__Path="$(Certificate__Path)"
+                export TOKEN_SIGN_KEY_SECRET="$(TOKEN_SIGN_KEY_SECRET)"
+                export Authentication__Google__ClientId="$(Authentication__Google__ClientId)"
+                export Authentication__Google__ClientSecret="$(Authentication__Google__ClientSecret)"
+                export ASPNETCORE_ENVIRONMENT="$(ASPNETCORE_ENVIRONMENT)"
+                export BaseUrl="$(BaseUrl)"
+                export AllowedHosts="$(AllowedHosts)"
+                export ConnectionStrings__DefaultConnection="$(ConnectionStrings__DefaultConnection)"
+                export ApplicationInsights__ConnectionString="$(ApplicationInsights__ConnectionString)"
+                export ApplicationInsights__EnableAuthenticationTrackingJavaScript="$(ApplicationInsights__EnableAuthenticationTrackingJavaScript)"
+                export ApplicationInsights__RequestCollectionOptions__TrackExceptions="$(ApplicationInsights__RequestCollectionOptions__TrackExceptions)"
+                export Certificate__Path="$(Certificate__Path)"
+                export Certificate__Secret="$(TOKEN_SIGN_KEY_SECRET)"
+                export RabbitMQSettings__HostName="$(RabbitMQSettings__HostName)"
+                export RabbitMQSettings__UserName="$(RabbitMQSettings__UserName)"
+                export RabbitMQSettings__Password="$(RabbitMQSettings__Password)"
+                export RabbitMQSettings__VHost="$(RabbitMQSettings__VHost)"
+                export RabbitMQSettings__EmailQueue="$(RabbitMQSettings__EmailQueue)"
+                export Clients__0__ClientSecret="$(Clients__0__ClientSecret)"
+                export Clients__0__ClientId="$(Clients__0__ClientId)"
+                export Clients__0__DisplayName="$(Clients__0__DisplayName)"
+                export Clients__0__PostLogoutRedirectUri="$(Clients__0__PostLogoutRedirectUri)"
+                export Clients__0__RedirectUri="$(Clients__0__RedirectUri)"
+                export Clients__0__Scopes="$(Clients__0__Scopes)"
+                export SSOSettings__Issuer="$(SSOSettings__Issuer)"
+                export SSOSettings__Audience="$(SSOSettings__Audience)"
+                export SSOSettings__ClientId="$(SSOSettings__ClientId)"
+                export SSOSettings__ClientSecret="$(SSOSettings__ClientSecret)"
+                export SSOSettings__Scope="$(SSOSettings__Scope)"
+
+                # Run Docker Compose commands
+                  echo "Running docker compose pull..."
+                  docker compose pull || { echo 'docker compose pull failed'; exit 1; }
+                  echo "Running docker compose down..."
+                  docker compose down || { echo 'docker compose down failed'; exit 1; }
+                  echo "Running docker compose up -d..."
+                  docker compose up -d || { echo 'docker compose up -d failed'; exit 1; }
+
+                  echo "Docker Compose operations completed successfully."
+
+              readyTimeout: "20000"

@@ -1,0 +1,48 @@
+﻿@page
+@model ErrorModel
+@{
+    ViewData["Title"] = "Error";
+    Layout = "/Pages/Shared/_AuthLayout.cshtml";
+}
+
+<div class="flex items-center justify-center min-h-[calc(100vh-80px)] py-8">
+    <section class="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 sm:p-8 space-y-6">
+        <div class="flex justify-center">
+            <div class="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+        </div>
+
+        <div class="space-y-4">
+            <h2 class="text-2xl text-center font-normal">
+                <span class="text-red-500 font-semibold">Oops!</span><br>
+                @Model.ErrorTitle
+            </h2>
+
+            <p class="text-center text-gray-600">
+                @Model.ErrorMessage
+            </p>
+        </div>
+
+        @if (Model.ShowRequestId)
+        {
+            <div class="text-center text-xs text-gray-500 py-2">
+                Request ID: <code class="bg-gray-100 px-2 py-1 rounded">@Model.RequestId</code>
+            </div>
+        }
+
+        <div class="pt-4 space-y-3">
+            <a href="/" class="block w-full bg-[#0A4276] text-white py-2.5 rounded-md font-medium hover:bg-[#154a7d] transition-colors text-center">
+                Sign in again
+            </a>
+            @if (Model.ShowRetry && !string.IsNullOrEmpty(Model.RetryUrl))
+            {
+                <a href="@Model.RetryUrl" class="block w-full bg-gray-100 text-gray-800 py-2.5 rounded-md font-medium hover:bg-gray-200 transition-colors text-center">
+                    Try Again
+                </a>
+            }
+        </div>
+    </section>
+</div>

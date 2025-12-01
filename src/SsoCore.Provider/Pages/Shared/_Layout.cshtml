@@ -1,0 +1,39 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SsoCore.Provider</title>
+    <script type="importmap"></script>
+    <link rel="icon" type="image/png" href="@Url.Content("~/icon.png")" />
+    <link rel="stylesheet" href="~/css/output.css" asp-append-version="true" />
+</head>
+<body class="h-screen flex flex-col justify-between bg-gray-100 text-gray-900">
+    <header class="bg-white shadow-md">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <a class="text-xl font-bold text-green-600" asp-area="" asp-page="/Index">SsoCore.Provider</a>
+                <div class="space-x-4">
+                    <a class="text-gray-700 hover:text-green-500" asp-area="" asp-page="/Index">Home</a>
+                    <a class="text-gray-700 hover:text-green-500" asp-area="" asp-page="/Privacy">Privacy</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="max-w-7xl mx-auto p-4">
+        <main>
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="bg-white border-t mt-8 py-4 text-center text-sm text-gray-500">
+        &copy; 2025 - SsoCore.Provider - <a asp-area="" asp-page="/Privacy" class="text-green-500 hover:underline">Privacy</a>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

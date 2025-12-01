@@ -1,0 +1,31 @@
+@page
+@model SsoCore.Provider.Pages.Registrations.RegistrationConfirmation
+
+@{
+    Layout = "/Pages/Shared/_AuthLayout.cshtml";
+    ViewData["Registration Complete"] = "Registration Complete";
+}
+
+<section class="flex items-center justify-center min-h-[calc(100vh-80px)] py-8">
+    <section class="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 sm:py-8 space-y-8">
+        <div class="flex justify-center">
+            <div class="w-16 h-16 rounded-full flex items-center justify-center">
+                <img src="~/assets/password_change_success.svg" alt="Password change success" class="h-55 w-58" />
+            </div>
+        </div>
+
+        <div class="space-y-4">
+            <h2 class="text-2xl text-center font-normal"><span class="text-[#093F73] font-semibold">Great!</span><br>Your payment information is up to date</h2>
+
+            <p class="text-center text-sm text-gray-600 mb-8">To get most out of onnexsoft, visit your profile<br />
+                <span>to complete all payment records information</span>
+            </p>
+        </div>
+
+        <form method="post" class="block w-full bg-[#0A4276] text-white py-3 rounded-md font-medium hover:bg-[#154a7d] transition-colors text-center">
+            <button type="submit">
+                Go to Dashboard
+            </button>
+        </form>
+    </section>
+</section>

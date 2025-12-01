@@ -1,0 +1,125 @@
+﻿@page
+@model SsoCore.Provider.Pages.Accounts.VerifyOTPModel
+@{
+    Layout = "/Pages/Shared/_AuthLayout.cshtml";
+    ViewData["Verify OTP"] = "Verify OTP";
+}
+
+<section class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 sm:p-8">
+    <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Confirm Email</h2>
+
+    <p class="text-center text-gray-600 mb-1">Enter the verification code sent to</p>
+    <p class="text-center mb-6">
+        <span class="text-[#479FC8]">@Model.Email</span> to complete verification
+    </p>
+
+    @if (!string.IsNullOrEmpty(Model.Error))
+    {
+        <div class="w-full py-3 text-center text-red-700 text-sm">@Model.Error</div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.Success))
+    {
+        <div class="w-full py-3 text-center text-green-700 text-sm">@Model.Success</div>
+    }
+
+    <form method="post" asp-page-handler="">
+        <input type="hidden" asp-for="ReturnUrl" />
+        <input type="hidden" asp-for="Email" />
+        <div class="mb-6">
+            <label class="block text-center text-gray-500 mb-4">Enter Code</label>
+
+            <div class="flex justify-center gap-2 sm:gap-3">
+                @for (int i = 0; i < 6; i++)
+                {
+                    <input type="text"
+                           name="OTP[@i]"
+                           maxlength="1"
+                           class="w-12 h-12 text-center text-xl font-semibold rounded-md bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#1a5b96] focus:border-transparent"
+                           @(i == 0 ? "autofocus" : "")
+                           onkeyup="moveToNext(this, @(i))"/>
+                }
+            </div>
+
+            <div class="text-center mt-4 text-gray-600">
+                Code expires in <span class="text-[#479FC8]" id="countdown">10:00</span>
+            </div>
+        </div>
+
+        <button type="submit" class="w-full bg-[#0A4276] text-white py-3 rounded-md font-medium hover:bg-[#154a7d] transition-colors">
+            Confirm
+        </button>
+    </form>
+
+    <div class="mt-8 text-center border-t border-gray-200 pt-6">
+        <span class="text-gray-600">Didn't get a code?</span>
+        <form method="post" asp-page-handler="ResendOtp">
+            <input type="hidden" asp-for="Email" />
+            <input type="hidden" asp-for="ReturnUrl" />
+            <button type="submit" class="text-[#479FC8] hover:underline bg-transparent border-none cursor-pointer">
+                Resend code
+            </button>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        function moveToNext(field, index) {
+            const inputs = document.querySelectorAll('input[name^="OTP"]');
+
+            field.value = field.value.replace(/[^0-9]/g, '');
+
+            if (field.value && index < inputs.length - 1) {
+                inputs[index + 1].focus();
+            }
+
+            if (field.value === '' && index > 0) {
+                inputs[index - 1].focus();
+            }
+
+            checkAllFilled();
+        }
+
+        function checkAllFilled() {
+            const inputs = document.querySelectorAll('input[name^="OTP"]');
+            const submitBtn = document.querySelector('button[type="submit"]');
+
+            let allFilled = true;
+            inputs.forEach(input => {
+                if (!input.value) {
+                    allFilled = false;
+                }
+            });
+        }
+        
+        function startCountdown() {
+            let timeLeft = 600;
+            const countdownEl = document.getElementById('countdown');
+
+            const timer = setInterval(() => {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+
+                countdownEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    document.getElementById('resendCode').classList.remove('text-gray-400');
+                    document.getElementById('resendCode').classList.add('text-[#479FC8]');
+                }
+
+                timeLeft--;
+            }, 1000);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            startCountdown();
+
+            document.getElementById('resendCode').addEventListener('click', function(e) {
+                e.preventDefault();
+                startCountdown();
+            });
+        });
+    </script>
+}
