@@ -7,7 +7,7 @@ pool:
 variables:
   - group: user-auth-service-test
   - name: dockerRegistry
-    value: "docker.onnexsoft.com"
+    value: "docker.xxx.com"
   - name: dockerRegistryServiceConnection
     value: "onnexsoft_registry"
   - name: imageName
