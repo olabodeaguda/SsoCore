@@ -1,6 +1,6 @@
 services:
   onnex-user-auth:
-    image: docker.onnexsoft.com/user-auth:latest
+    image: docker.xxxx.com/user-auth:latest
     restart: "unless-stopped"
     hostname: onnex-user-auth-provider
     container_name: onnex-user-auth-provider
